@@ -50,9 +50,23 @@ int main()
 {
 
     FILE* archivo;
+    celda sistema_de_materias[30];
+    int validos_materias;
+    char materia[30];
 
-    cargar_archivo(archivo);
-    mostrar_archivo(archivo);
+    /*cargar_archivo(archivo);
+    mostrar_archivo(archivo);*/
+
+
+    validos_materias = agregar_materias(sistema_de_materias, 10, archivo);
+
+
+    printf("Ingresa el nombre de la materia: ");
+    fflush(stdin);
+    gets(&materia);
+
+    mostrar_arreglo(sistema_de_materias, validos_materias, materia);
+
 
 }
 
@@ -103,7 +117,6 @@ void cargar_archivo(FILE* archivo)
         fclose(archivo);
     }
 }
-
 void mostrar_archivo(FILE* archivo)
 {
 
@@ -127,13 +140,11 @@ void mostrar_archivo(FILE* archivo)
         }
     }
 }
-
 nodo* inic_nodo()
 {
 
     return NULL;
 }
-
 nodo* crear_nodo(notaAlumno dato)
 {
     nodo* aux = (nodo*) malloc(sizeof(nodo));
@@ -143,7 +154,6 @@ nodo* crear_nodo(notaAlumno dato)
 
     return aux;
 }
-
 nodo* agregar_pricipio(nodo* lista, nodo* nuevoNodo)
 {
     if(!lista)
@@ -160,8 +170,7 @@ nodo* agregar_pricipio(nodo* lista, nodo* nuevoNodo)
 
     return lista;
 }
-
-nodo* crear_lista_alumno(nodo* lista, notaAlumno dato)
+nodo* cargar_lista_alumno(nodo* lista, notaAlumno dato)
 {
     if(lista)
     {
@@ -175,7 +184,6 @@ nodo* crear_lista_alumno(nodo* lista, notaAlumno dato)
 
     return lista;
 }
-
 int agregar_materias(celda arreglo[], int dim, FILE* archivo)
 {
 
@@ -184,7 +192,7 @@ int agregar_materias(celda arreglo[], int dim, FILE* archivo)
     notaAlumno alumno;
 
     int i = 0;
-    int pos = 0;
+    int pos = -1;
 
     if(archivo)
     {
@@ -192,7 +200,7 @@ int agregar_materias(celda arreglo[], int dim, FILE* archivo)
         while(fread(&aux, sizeof(registroArchivo), 1, archivo) > 0)
         {
 
-            pos = buscar_posicion(arreglo, 10, aux);
+            pos = buscar_posicion(arreglo, dim, aux);
 
             if(pos == -1)
             {
@@ -206,8 +214,10 @@ int agregar_materias(celda arreglo[], int dim, FILE* archivo)
                 strcpy(alumno.nombreApe, aux.nombreApe);
                 alumno.nota = aux.nota;
 
-                //arreglo[i]->listaDeNotas = crear_lista_alumno(arreglo[i]->listaDeNotas, alumno);
+                arreglo[i].listaDeNotas = crear_lista_alumno(arreglo[i].listaDeNotas, alumno);
             }
+
+            i++;
         }
 
         fclose(archivo);
@@ -236,3 +246,39 @@ int buscar_posicion(celda arreglo[], int dim, registroArchivo alumno)
 
     return pos;
 }
+void recorrer_lista_de_alumnos(nodo* lista)
+{
+
+    if(lista)
+    {
+        printf("........................");
+        printf("Legajo: %i\n", lista->dato.legajo);
+        printf("Nombre y Apellido: %s\n", lista->dato.nombreApe);
+        printf("Nota: %i\n", lista->dato.nota);
+        printf("........................");
+
+        recorrer_lista_de_alumnos(lista->siguiente);
+    }
+}
+void mostrar_arreglo(celda arreglo[], int validos, char materia)
+{
+
+    int i = 0;
+
+    for(i=0; i < validos; i++)
+    {
+
+        if(strcmp(arreglo[i].materia, materia) == 0)
+        {
+
+            printf("\n#ID de la materia: %i", arreglo[i].idMateria);
+            printf("\nMateria: %s", arreglo[i].materia);
+            printf("\nAlumnos inscriptos: \n\n");
+
+            recorrer_lista_de_alumnos(arreglo[i].listaDeNotas);
+
+
+        }
+    }
+}
+
