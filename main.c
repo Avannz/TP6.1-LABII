@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
 #include <string.h>
@@ -34,8 +35,14 @@ typedef struct
 
 /// PROTOTIPADO ///
 
+int buscar_posicion(celda arreglo[], int dim, registroArchivo alumno);
+int agregar_materias(celda arreglo[], int dim, FILE* archivo);
 void cargar_archivo(FILE* archivo);
 void mostrar_archivo(FILE* archivo);
+nodo* inic_nodo();
+nodo* crear_nodo(notaAlumno dato);
+nodo* agregar_pricipio(nodo* lista, nodo* nuevoNodo);
+nodo* crear_lista_alumno(nodo* lista, notaAlumno dato);
 
 /// MAIN ///
 
@@ -96,6 +103,7 @@ void cargar_archivo(FILE* archivo)
         fclose(archivo);
     }
 }
+
 void mostrar_archivo(FILE* archivo)
 {
 
@@ -119,12 +127,14 @@ void mostrar_archivo(FILE* archivo)
         }
     }
 }
+
 nodo* inic_nodo()
 {
 
-    return NULL
+    return NULL;
 }
-nodo* crear_nodo(registroArchivo dato)
+
+nodo* crear_nodo(notaAlumno dato)
 {
     nodo* aux = (nodo*) malloc(sizeof(nodo));
 
@@ -133,6 +143,7 @@ nodo* crear_nodo(registroArchivo dato)
 
     return aux;
 }
+
 nodo* agregar_pricipio(nodo* lista, nodo* nuevoNodo)
 {
     if(!lista)
@@ -150,7 +161,7 @@ nodo* agregar_pricipio(nodo* lista, nodo* nuevoNodo)
     return lista;
 }
 
-nodo* crear_nodo_alumno(nodo* lista, registroArchivo dato)
+nodo* crear_lista_alumno(nodo* lista, notaAlumno dato)
 {
     if(lista)
     {
@@ -164,14 +175,16 @@ nodo* crear_nodo_alumno(nodo* lista, registroArchivo dato)
 
     return lista;
 }
-int archivo_a_arreglo(celda arreglo[], int dim, FILE* archivo)
+
+int agregar_materias(celda arreglo[], int dim, FILE* archivo)
 {
 
-    fopen = ("miArchivo.bin", "rb");
+    archivo = fopen("miArchivo.bin", "rb");
     registroArchivo aux;
+    notaAlumno alumno;
 
     int i = 0;
-    int falg = 0;
+    int pos = 0;
 
     if(archivo)
     {
@@ -179,29 +192,47 @@ int archivo_a_arreglo(celda arreglo[], int dim, FILE* archivo)
         while(fread(&aux, sizeof(registroArchivo), 1, archivo) > 0)
         {
 
+            pos = buscar_posicion(arreglo, 10, aux);
 
+            if(pos == -1)
+            {
+
+                arreglo[i].idMateria = aux.idMateria;
+                strcpy(arreglo[i].materia, aux.materia);
+            }
+            else
+            {
+                alumno.legajo = aux.legajo;
+                strcpy(alumno.nombreApe, aux.nombreApe);
+                alumno.nota = aux.nota;
+
+                //arreglo[i]->listaDeNotas = crear_lista_alumno(arreglo[i]->listaDeNotas, alumno);
+            }
         }
 
         fclose(archivo);
     }
 
-
-    return validos;
+    return i;
 }
 
 
-int buscar_posicion(celda arreglo[], registroArchivo alumno)
+int buscar_posicion(celda arreglo[], int dim, registroArchivo alumno)
 {
     int i = 0;
+    int pos = -1;
 
-   while(i<dimension)
-   {
-
-    if((strcmp(celda[i].materia, alumno.materia) != 0))
+    while(i < dim)
     {
 
+        if(strcmp(arreglo[i].materia, alumno.materia) == 0)
+        {
 
+            pos = i;
+        }
+
+        i++;
     }
 
-}
+    return pos;
 }
