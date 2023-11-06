@@ -40,6 +40,7 @@ nodo* crearNodo (notaAlumno info);
 void mostrar_lista(nodo* lista);
 void cargar_archivo(FILE* archivo);
 void mostrar_archivo(FILE* archivo);
+void pasarDeADLToArchivoDeAprobados(FILE* aprobados, celda arreglo[], int validos);
 int agregar_materia(celda arreglo[], notaAlumno alumno, int validos, char materia[]);
 int alta(celda arreglo[], notaAlumno alumno, int validos, char materia[]);
 int ingresarNotas (celda arreglo[],FILE* archivo, int dimension);
@@ -53,18 +54,20 @@ int main()
     celda arreglo_materias[30];
     int validos = 0;
 
-    /*cargar_archivo(archivo_alumnos);
-    mostrar_archivo(archivo_alumnos);*/
+    cargar_archivo(archivo_alumnos);
+    mostrar_archivo(archivo_alumnos);
+
 
     validos = ingresarNotas(arreglo_materias, archivo_alumnos, 20);
-    mostrar_arreglo(arreglo_materias, validos);
+    mostrar_arreglo(arreglo_materias, 0, validos);
+
 
 }
 
 void cargar_archivo(FILE* archivo)
 {
 
-    archivo = fopen("miArchivo.bin", "ab");
+    archivo = fopen("miArchivo.bin", "wb");
     char letra = 's';
     registroArchivo datos;
 
@@ -83,6 +86,7 @@ void cargar_archivo(FILE* archivo)
             fflush(stdin);
             gets(&datos.materia);
 
+
             printf("Ingresa el legajo del alumno: ");
             fflush(stdin);
             scanf("%i", &datos.legajo);
@@ -92,7 +96,9 @@ void cargar_archivo(FILE* archivo)
             gets(&datos.nombreApe);
 
             printf("Ingresa la nota del alumno: ");
+            fflush(stdin);
             scanf("%i", &datos.nota);
+
 
             printf("Ingresa 's' para continuar: ");
             fflush(stdin);
@@ -169,7 +175,7 @@ void mostrar_lista(nodo* lista)
     if(lista)
     {
 
-        printf("\nLegajo: %i", lista->dato.legajo);
+        printf("\nLegajo: %i\n", lista->dato.legajo);
         printf("Nombre: %s\n", lista->dato.nombreApe);
         printf("Nota: %i\n", lista->dato.nota);
 
@@ -178,20 +184,22 @@ void mostrar_lista(nodo* lista)
 
 }
 
-void mostrar_arreglo(celda arreglo[], int validos)
+void mostrar_arreglo(celda arreglo[],int i , int validos)
 {
 
-    int i = 0;
-    for(i = 0; i < validos; i++)
-    {
+    if(i < validos)
+        {
 
         printf("......................\n");
+        printf("ARREGLO DE LISTAS: \n\n");
         printf("#ID Materia: %i\n", arreglo[i].idMateria);
         printf("Materia: %s\n", arreglo[i].materia);
         mostrar_lista(arreglo[i].listaDeNotas);
-        printf("......................\n");
+        printf("......................\n\n\n");
 
-    }
+
+        mostrar_arreglo(arreglo, i+1, validos);
+        }
 
 }
 
@@ -278,3 +286,34 @@ int agregar_materia(celda arreglo[], notaAlumno alumno, int validos, char materi
     return validos;
 }
 
+void pasarDeADLToArchivoDeAprobados(FILE* aprobados, celda arreglo[], int validos)
+{
+
+    aprobados = fopen("miAprobados.bin", "wb");
+    registroArchivo alumno;
+    notaAlumno datos;
+
+    int i = 0;
+
+    if(aprobados)
+    {
+
+        for(i = 0; i < validos; i++)
+        {
+
+            if(arreglo[i].listaDeNotas->dato.nota >= 6)
+            {
+
+                alumno.idMateria = arreglo[i].idMateria;
+                strcpy(alumno.materia, arreglo[i].materia);
+                alumno.legajo = arreglo[i].listaDeNotas->dato.legajo;
+                alumno.nota = arreglo[i].listaDeNotas->dato.nota;
+                strcpy(alumno.nombreApe, arreglo[i].listaDeNotas->dato.nombreApe);
+
+                fwrite(&alumno, sizeof(registroArchivo), 1, aprobados);
+            }
+        }
+
+        fclose(aprobados);
+    }
+}
