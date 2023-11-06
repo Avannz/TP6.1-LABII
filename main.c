@@ -1,8 +1,9 @@
 #include <stdio.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
 #include <string.h>
+
+/// ESTRUCTURAS ///
 
 typedef struct
 {
@@ -33,131 +34,105 @@ typedef struct
     nodo * listaDeNotas;
 } celda;
 
-/// PROTOTIPADO ///
-
-int buscar_posicion(celda arreglo[], int dim, registroArchivo alumno);
-int agregar_materias(celda arreglo[], int dim, FILE* archivo);
+nodo* agregar_pricipio(nodo* lista, nodo* nuevoNodo);
+nodo* iniciar_lista();
+nodo* crearNodo (notaAlumno info);
+void mostrar_lista(nodo* lista);
 void cargar_archivo(FILE* archivo);
 void mostrar_archivo(FILE* archivo);
-nodo* inic_nodo();
-nodo* crear_nodo(notaAlumno dato);
-nodo* agregar_pricipio(nodo* lista, nodo* nuevoNodo);
-nodo* crear_lista_alumno(nodo* lista, notaAlumno dato);
+int agregar_materia(celda arreglo[], notaAlumno alumno, int validos, char materia[]);
+int alta(celda arreglo[], notaAlumno alumno, int validos, char materia[]);
+int ingresarNotas (celda arreglo[],FILE* archivo, int dimension);
+int buscar_posicion(celda arreglo[], notaAlumno alumno, int validos, char materia[]);
 
-/// MAIN ///
 
 int main()
 {
 
-    FILE* archivo;
-    celda sistema_de_materias[30];
-    int validos_materias;
-    char materia[30];
+    FILE* archivo_alumnos;
+    celda arreglo_materias[30];
+    int validos = 0;
 
-    /*cargar_archivo(archivo);
-    mostrar_archivo(archivo);*/
+    /*cargar_archivo(archivo_alumnos);
+    mostrar_archivo(archivo_alumnos);*/
 
-
-    validos_materias = agregar_materias(sistema_de_materias, 10, archivo);
-
-
-    printf("Ingresa el nombre de la materia: ");
-    fflush(stdin);
-    gets(&materia);
-
-    mostrar_arreglo(sistema_de_materias, validos_materias, materia);
-
+    validos = ingresarNotas(arreglo_materias, archivo_alumnos, 20);
+    mostrar_arreglo(arreglo_materias, validos);
 
 }
-
-/// FUNCIONES ///
 
 void cargar_archivo(FILE* archivo)
 {
 
     archivo = fopen("miArchivo.bin", "ab");
-
     char letra = 's';
-    registroArchivo aux;
+    registroArchivo datos;
 
     if(archivo)
     {
+
         while(letra == 's')
         {
             system("cls");
 
-            printf("Ingresa el #ID de la materia: ");
+            printf("Ingrese la #ID de la materia: ");
             fflush(stdin);
-            scanf("%i", &aux.idMateria);
+            scanf("%i", &datos.idMateria);
 
             printf("Ingresa el nombre de la materia: ");
             fflush(stdin);
-            gets(&aux.materia);
+            gets(&datos.materia);
 
             printf("Ingresa el legajo del alumno: ");
             fflush(stdin);
-            scanf("%i", &aux.legajo);
+            scanf("%i", &datos.legajo);
 
             printf("Ingresa el nombre del alumno: ");
             fflush(stdin);
-            gets(&aux.nombreApe);
+            gets(&datos.nombreApe);
 
-            printf("Ingresa la nota del alumo: ");
-            fflush(stdin);
-            scanf("%i", &aux.nota);
-
-            fwrite(&aux, sizeof(registroArchivo), 1, archivo);
+            printf("Ingresa la nota del alumno: ");
+            scanf("%i", &datos.nota);
 
             printf("Ingresa 's' para continuar: ");
             fflush(stdin);
             scanf("%c", &letra);
+
+            fwrite(&datos, sizeof(registroArchivo), 1, archivo);
 
         }
 
         fclose(archivo);
     }
 }
+
 void mostrar_archivo(FILE* archivo)
 {
-
     archivo = fopen("miArchivo.bin", "rb");
-    registroArchivo aux;
+    registroArchivo a;
 
     if(archivo)
     {
-
-        while(fread(&aux, sizeof(registroArchivo), 1, archivo) > 0)
+        while(fread(&a, sizeof(registroArchivo), 1, archivo ) > 0)
         {
-
-            printf("\n......................");
-            printf("\nMateria #ID: %i\n", aux.idMateria);
-            printf("Materia: %s\n", aux.materia);
-            printf("Legajo: %i\n", aux.legajo);
-            printf("Nombre y Apellido: %s\n", aux.nombreApe);
-            printf("Nota: %i\n", aux.nota);
-            printf("........................");
-
+            printf("\n.....................\n");
+            printf("ID#: %i\n",a.idMateria);
+            printf("Materia %s\n",a.materia);
+            printf("Legajo %i\n",a.legajo);
+            printf("Nombre del alumno %s\n",a.nombreApe);
+            printf("Nota %i\n",a.nota);
         }
+
+        fclose(archivo);
     }
 }
-nodo* inic_nodo()
-{
 
-    return NULL;
-}
-nodo* crear_nodo(notaAlumno dato)
-{
-    nodo* aux = (nodo*) malloc(sizeof(nodo));
-
-    aux->dato = dato;
-    aux->siguiente = NULL;
-
-    return aux;
-}
 nodo* agregar_pricipio(nodo* lista, nodo* nuevoNodo)
 {
+
     if(!lista)
     {
+
         lista = nuevoNodo;
     }
     else
@@ -170,74 +145,118 @@ nodo* agregar_pricipio(nodo* lista, nodo* nuevoNodo)
 
     return lista;
 }
-nodo* cargar_lista_alumno(nodo* lista, notaAlumno dato)
+
+nodo* iniciar_lista()
 {
+
+    return NULL;
+}
+
+nodo* crearNodo (notaAlumno info)
+{
+
+    nodo* aux = (nodo*) malloc(sizeof(nodo));
+
+    aux->dato = info;
+    aux->siguiente = NULL;
+
+    return aux;
+}
+
+void mostrar_lista(nodo* lista)
+{
+
     if(lista)
     {
 
-        nodo* nuevoNodo = inic_nodo();
+        printf("\nLegajo: %i", lista->dato.legajo);
+        printf("Nombre: %s\n", lista->dato.nombreApe);
+        printf("Nota: %i\n", lista->dato.nota);
 
-        nuevoNodo = crear_nodo(dato);
-
-        lista = agregar_pricipio(lista, nuevoNodo);
+        mostrar_archivo(lista->siguiente);
     }
 
-    return lista;
 }
-int agregar_materias(celda arreglo[], int dim, FILE* archivo)
+
+void mostrar_arreglo(celda arreglo[], int validos)
 {
 
-    archivo = fopen("miArchivo.bin", "rb");
-    registroArchivo aux;
-    notaAlumno alumno;
-
     int i = 0;
-    int pos = -1;
+    for(i = 0; i < validos; i++)
+    {
+
+        printf("......................\n");
+        printf("#ID Materia: %i\n", arreglo[i].idMateria);
+        printf("Materia: %s\n", arreglo[i].materia);
+        mostrar_lista(arreglo[i].listaDeNotas);
+        printf("......................\n");
+
+    }
+
+}
+
+
+int ingresarNotas (celda arreglo[], FILE* archivo, int dimension)
+{
+    archivo = fopen("miArchivo.bin", "rb");
+
+    char letra = 's';
+    char materia[20];
+    int validos = 0;
+    notaAlumno aux;
+    registroArchivo alumno;
 
     if(archivo)
     {
 
-        while(fread(&aux, sizeof(registroArchivo), 1, archivo) > 0)
+        while(validos < dimension && fread(&alumno, sizeof(registroArchivo), 1, archivo) > 0)
         {
 
-            pos = buscar_posicion(arreglo, dim, aux);
+            aux.legajo = alumno.legajo;
+            strcpy(aux.nombreApe, alumno.nombreApe);
+            aux.nota = alumno.nota;
+            strcpy(materia, alumno.materia);
 
-            if(pos == -1)
-            {
+            validos = alta(arreglo, aux, validos, materia);
 
-                arreglo[i].idMateria = aux.idMateria;
-                strcpy(arreglo[i].materia, aux.materia);
-            }
-            else
-            {
-                alumno.legajo = aux.legajo;
-                strcpy(alumno.nombreApe, aux.nombreApe);
-                alumno.nota = aux.nota;
 
-                arreglo[i].listaDeNotas = crear_lista_alumno(arreglo[i].listaDeNotas, alumno);
-            }
-
-            i++;
         }
 
         fclose(archivo);
     }
 
-    return i;
+    return validos;
 }
 
-
-int buscar_posicion(celda arreglo[], int dim, registroArchivo alumno)
+int alta(celda arreglo[], notaAlumno alumno, int validos, char materia[])
 {
-    int i = 0;
-    int pos = -1;
 
-    while(i < dim)
+    nodo* aux = crearNodo(alumno);
+
+    int pos = buscar_posicion(arreglo, alumno, validos, materia);
+
+    if(pos == -1)
     {
 
-        if(strcmp(arreglo[i].materia, alumno.materia) == 0)
-        {
+        validos = agregar_materia(arreglo, alumno, validos, materia);
+        pos = validos-1;
+    }
 
+    arreglo[pos].listaDeNotas = agregar_pricipio(arreglo[pos].listaDeNotas, aux);
+
+    return validos;
+}
+
+int buscar_posicion(celda arreglo[], notaAlumno alumno, int validos, char materia[])
+{
+
+    int pos = -1;
+    int i = 0;
+
+    while(i < validos && pos == -1)
+    {
+        if(strcmp(arreglo[i].materia, materia) == 0)
+        {
             pos = i;
         }
 
@@ -246,39 +265,16 @@ int buscar_posicion(celda arreglo[], int dim, registroArchivo alumno)
 
     return pos;
 }
-void recorrer_lista_de_alumnos(nodo* lista)
+
+int agregar_materia(celda arreglo[], notaAlumno alumno, int validos, char materia[])
 {
 
-    if(lista)
-    {
-        printf("........................");
-        printf("Legajo: %i\n", lista->dato.legajo);
-        printf("Nombre y Apellido: %s\n", lista->dato.nombreApe);
-        printf("Nota: %i\n", lista->dato.nota);
-        printf("........................");
+    strcpy(arreglo[validos].materia, materia);
 
-        recorrer_lista_de_alumnos(lista->siguiente);
-    }
-}
-void mostrar_arreglo(celda arreglo[], int validos, char materia)
-{
+    arreglo[validos].listaDeNotas = iniciar_lista();
 
-    int i = 0;
+    validos++;
 
-    for(i=0; i < validos; i++)
-    {
-
-        if(strcmp(arreglo[i].materia, materia) == 0)
-        {
-
-            printf("\n#ID de la materia: %i", arreglo[i].idMateria);
-            printf("\nMateria: %s", arreglo[i].materia);
-            printf("\nAlumnos inscriptos: \n\n");
-
-            recorrer_lista_de_alumnos(arreglo[i].listaDeNotas);
-
-
-        }
-    }
+    return validos;
 }
 
